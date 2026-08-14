@@ -43,7 +43,10 @@ def generation_node(state: dict) -> dict:
         return {"answer": "I couldn't find any relevant information in the ingested documents to answer this."}
 
     context = _build_context(chunks)
-    llm = get_llm(temperature=0.2)
+
+    complexity = state.get("complexity", "complex")
+    task_name = "generate_simple" if complexity == "simple" else "generate_complex"
+    llm = get_llm(task=task_name, temperature=0.2)
 
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),

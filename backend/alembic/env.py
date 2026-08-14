@@ -11,7 +11,8 @@ from alembic import context
 
 from src.core.db import Base
 from src.core.config import settings
-from src.models.document import Document  # noqa: F401 - registers model on Base.metadata
+from src.models.document import Document  # noqa: F401 
+from src.models.user import User, RefreshToken # noqa: F401
 
 config = context.config
 

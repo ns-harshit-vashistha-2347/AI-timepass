@@ -51,11 +51,13 @@ class RecursiveTokenChunker(BaseChunker):
         )
 
     def _build_context_header(self, metadata: dict) -> str:
+        """Builds a short 'breadcrumb' string (source + section path) to prepend
+        to a chunk before embedding, so an isolated chunk doesn't lose the
+        surrounding context that made it meaningful."""
         parts: list[str] = []
 
         source = metadata.get("source")
         page = metadata.get("page_number")
-
         if source:
             parts.append(f"Source: {source}" + (f" (page {page})" if page else ""))
 
@@ -66,13 +68,13 @@ class RecursiveTokenChunker(BaseChunker):
             parts.append(f"Section: {section_path}")
 
         return "\n".join(parts)
-    
 
     def chunk(
         self,
         units: list[ParsedUnit],
         *,
-        document_id: str
+        document_id: str,
+        user_id: str | None = None,
     ) -> list[Chunk]:
 
         chunks: list[Chunk] = []
@@ -112,8 +114,10 @@ class RecursiveTokenChunker(BaseChunker):
                         **unit.metadata,
                         **metadata,
                         "document_id": document_id,
-                        "chunk_index": chunk_index
+                        "chunk_index": chunk_index,
                     }
+                    if user_id is not None:
+                        combined_metadata["user_id"] = user_id
 
                     header = self._build_context_header(combined_metadata)
                     embedded_text = f"{header}\n\n{chunk_text}" if header else chunk_text
@@ -141,11 +145,12 @@ class RecursiveTokenChunker(BaseChunker):
 
 def chunk_node(state: dict) -> dict:
     document_id = state["document_id"]
+    user_id = state.get("user_id")
     units = state["parsed_units"]
     logger.info(f"Chunking {len(units)} parsed units for document {document_id}")
 
     chunker = RecursiveTokenChunker()
-    chunks = chunker.chunk(units, document_id=document_id)
+    chunks = chunker.chunk(units, document_id=document_id, user_id=user_id)
 
     if not chunks:
         raise ValueError(f"No chunks were created for document {document_id}. Please check the input data.")

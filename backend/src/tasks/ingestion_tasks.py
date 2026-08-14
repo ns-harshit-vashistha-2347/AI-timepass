@@ -1,6 +1,3 @@
-
-
-
 from src.graphs.ingestion_graph import ingestion_graph
 from src.celery_app import celery_app
 from src.models.document import DocumentStatus, Document
@@ -37,8 +34,8 @@ def _set_status(document_id: str, status: DocumentStatus, *, error: str | None =
     default_retry_delay=30,
     acks_late=True,
 )
-def ingest_document_task(self, document_id: str, file_path: str, source_type: str = "document"):
-    logger.info(f"[ingest_document_task] starting document_id={document_id} file={file_path}")
+def ingest_document_task(self, document_id: str, file_path: str, source_type: str = "document", user_id: str | None = None):
+    logger.info(f"[ingest_document_task] starting document_id={document_id} user_id={user_id} file={file_path}")
 
     node_to_status = {
         "parse": DocumentStatus.PARSING,
@@ -56,7 +53,8 @@ def ingest_document_task(self, document_id: str, file_path: str, source_type: st
             {
                 "document_id": document_id,
                 "file_path": file_path,
-                "source_type": source_type
+                "source_type": source_type,
+                "user_id": user_id,
             }
         ):
             for node_name, node_output in step.items():

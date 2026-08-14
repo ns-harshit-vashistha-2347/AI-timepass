@@ -12,7 +12,7 @@ def store_node(state: dict) -> dict:
     source_type = state.get("source_type", "document")
 
     collection_name = "codebase" if source_type == "codebase" else None
-    collection = get_collections(name=collection_name)
+    collection = get_collections(collection_name=collection_name)
     logger.info(f"Storing {len(chunks)} chunks in collection {collection.name}")
 
     collection.upsert(

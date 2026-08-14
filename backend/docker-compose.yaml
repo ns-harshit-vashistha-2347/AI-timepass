@@ -42,6 +42,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: world-backend:latest
     container_name: world_backend
     restart: unless-stopped
     command: >
@@ -69,6 +70,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: world-backend:latest
     container_name: world_celery_ingestion
     restart: unless-stopped
     command: celery -A src.celery_app worker -Q ingestion -n ingestion_worker@%h --loglevel=info
@@ -92,6 +94,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: world-backend:latest
     container_name: world_flower
     restart: unless-stopped
     command: celery -A src.celery_app flower --port=5555

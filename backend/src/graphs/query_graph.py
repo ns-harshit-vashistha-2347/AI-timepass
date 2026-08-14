@@ -5,7 +5,7 @@ from langgraph.graph import START, END, StateGraph
 
 from src.core.config import settings
 from src.nodes.retrieval.bm25 import bm25_retrieval_node
-from src.nodes.retrieval.compression import compression_node
+from src.nodes.retrieval.compression import compressed_node
 from src.nodes.retrieval.dense import dense_retrieval_node
 from src.nodes.retrieval.fusion import fusion_node
 from src.nodes.retrieval.generation import generation_node
@@ -65,7 +65,7 @@ def build_query_graph():
     graph.add_node("bm25", bm25_retrieval_node)
     graph.add_node("fusion", fusion_node)
     graph.add_node("rerank", rerank_node)
-    graph.add_node("compression", compression_node)
+    graph.add_node("compression", compressed_node)
     graph.add_node("generation", generation_node)
     graph.add_node("verify", verify_node)
     graph.add_node("expand_retrieval", expand_retrieval_node)

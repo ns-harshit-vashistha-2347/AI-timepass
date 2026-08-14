@@ -1,15 +1,17 @@
 import time
+
 from rank_bm25 import BM25Okapi
+
 from src.core.cache import get_bm25_version
 from src.core.logging import get_logger
 from src.core.vectorstore import get_collections
-from src.nodes.retrieval.fusion import reciprocal_rank_fusion
 from src.interfaces.base_retriever import BaseRetriever, RetrievedChunk
 from src.core.config import settings
 
 logger = get_logger(__name__)
 
 _BM25_CACHE: dict[str, tuple] = {}
+
 
 class BM25Retriever(BaseRetriever):
     def __init__(self, collection_name: str):
@@ -42,23 +44,20 @@ class BM25Retriever(BaseRetriever):
         _BM25_CACHE[name] = (current_version, time.time(), bm25, ids, documents, metadatas)
         return bm25, ids, documents, metadatas
 
-    def retrieve(self, query: str, top_k: int = 5) -> list[RetrievedChunk]:
-        ids, documents, metadatas = self._load_corpus()
+    def retrieve(self, query: str, top_k: int = 5, user_id: str | None = None) -> list[RetrievedChunk]:
+        bm25, ids, documents, metadatas = self._get_index()
 
-        if not documents:
+        if not documents or bm25 is None:
             return []
-
-        tokenized_corpus = [doc.split(" ") for doc in documents]
-        bm25 = BM25Okapi(tokenized_corpus)
 
         tokenized_query = query.split(" ")
         scores = bm25.get_scores(tokenized_query)
 
-        ranked = sorted(
-            zip(ids, documents, metadatas, scores),
-            key=lambda x: x[3],
-            reverse=True
-        )[:top_k]
+        combined = list(zip(ids, documents, metadatas, scores))
+        if user_id is not None:
+            combined = [row for row in combined if (row[2] or {}).get("user_id") == user_id]
+
+        ranked = sorted(combined, key=lambda x: x[3], reverse=True)[:top_k]
 
         return [
             RetrievedChunk(
@@ -72,14 +71,18 @@ class BM25Retriever(BaseRetriever):
 
 
 def bm25_retrieval_node(state: dict) -> dict:
+    from src.nodes.retrieval.fusion import reciprocal_rank_fusion
+
     queries = state.get("queries") or [state["query"]]
     retrieval_k = state.get("retrieval_k", state.get("top_k", 5))
-    logger.info(f"[bm25_retrieval_node] searching {len(queries)} query variants, retrieval_k={retrieval_k}")
+    user_id = state.get("user_id")
+    logger.info(
+        f"[bm25_retrieval_node] searching {len(queries)} query variants, retrieval_k={retrieval_k} user_id={user_id}"
+    )
 
     retriever = BM25Retriever(settings.CHROMA_COLLECTION_DOCUMENTS)
 
-    per_query_results = [retriever.retrieve(q, retrieval_k) for q in queries]
+    per_query_results = [retriever.retrieve(q, retrieval_k, user_id=user_id) for q in queries]
     fused = reciprocal_rank_fusion(per_query_results)[:retrieval_k]
 
     return {"bm25_results": fused}
-    

@@ -14,6 +14,7 @@ class IngestionState(TypedDict, total=False):
     document_id: str
     file_path: str
     source_type: str
+    user_id: str | None
     parsed_units: list[Any]
     chunks: list[Any]
     embeddings: list[list[float]]

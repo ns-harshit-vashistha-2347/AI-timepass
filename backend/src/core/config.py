@@ -47,7 +47,12 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
-    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    GROQ_MODEL_SMALL: str = "llama-3.1-8b-instant"
+    GROQ_MODEL_MEDIUM: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL_LARGE: str = "llama-3.3-70b-versatile"
+    QUERY_CLASSIFIER_ENABLED: bool = True
+
+    EMBEDDING_MODEL: str = "BAAI/bge-large-en-v1.5"
 
     UPLOAD_DIR: str = "/data/uploads"
 
@@ -77,7 +82,18 @@ class Settings(BaseSettings):
     SELF_CORRECTION_EXPANDED_K: int = 10
 
 
+    JWT_SECRET_KEY: str = "change-me-in-production-please"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     ALLOWED_EXTENSIONS: str = ".pdf,.docx,.md,.txt"
+
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8080/auth/google/callback"
+    FRONTEND_URL: str = "http://localhost:3000"
 
     @property
     def allowed_extensions(self) -> frozenset[str]:
@@ -86,6 +102,10 @@ class Settings(BaseSettings):
             for ext in self.ALLOWED_EXTENSIONS.split(",")
             if ext.strip()
         )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
 
 @lru_cache()
