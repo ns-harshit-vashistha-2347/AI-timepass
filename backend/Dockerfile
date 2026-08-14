@@ -16,9 +16,8 @@ COPY requirements.in .
 # BuildKit cache mount: pip's download/wheel cache persists across builds
 # even when requirements.in changes, so only *new* packages get downloaded
 # instead of re-downloading everything every time.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
-    pip install -r requirements.in
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.in
 
 # ---------- runtime stage: slim, no build tools, code copied last ----------
 FROM python:3.11-slim AS runtime
