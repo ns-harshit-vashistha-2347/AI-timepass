@@ -3,11 +3,21 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     PROJECT_NAME: str = "AI World Backend"
     APP_NAME: str = "AI World Backend"
     ENV: str = "local"
+
+    # Controls sentence-transformers/huggingface_hub network access at
+    # runtime. Only set this to "1" once BAAI/bge-large-en-v1.5 (or
+    # whichever EMBEDDING_MODEL you use) is already cached locally
+    # (e.g. baked into the image or in a mounted HF cache volume) --
+    # otherwise embedding calls fail with a connection error because
+    # the model can't be downloaded.
+    HF_HUB_OFFLINE: str = "0"
 
     POSTGRES_USER: str = "world"
     POSTGRES_PASSWORD: str = "world"

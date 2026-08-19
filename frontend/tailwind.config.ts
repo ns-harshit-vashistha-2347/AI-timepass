@@ -10,28 +10,33 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#0a0a0f",
-          soft: "#0f0f17",
-          muted: "#151520",
+          DEFAULT: "#0d1420",
+          soft: "#111a2b",
+          muted: "#172236",
         },
         surface: {
-          DEFAULT: "#12121c",
-          hover: "#1a1a26",
-          border: "#22222f",
+          DEFAULT: "#182338",
+          hover: "#1f2c46",
+          border: "#2a3853",
         },
         text: {
-          DEFAULT: "#e8e8f0",
-          muted: "#9a9ab0",
-          subtle: "#6a6a80",
+          DEFAULT: "#e8ecf5",
+          muted: "#a3adc2",
+          subtle: "#6b7893",
         },
         accent: {
-          DEFAULT: "#7c5cff",
-          soft: "#5b3fd9",
-          glow: "#a084ff",
+          DEFAULT: "#f5b544",
+          soft: "#d99730",
+          glow: "#ffd280",
         },
-        success: "#3ecf8e",
-        warn: "#f5a524",
-        danger: "#f43f5e",
+        circuit: {
+          DEFAULT: "#22d3ee",
+          soft: "#0e7490",
+          glow: "#67e8f9",
+        },
+        success: "#4ade80",
+        warn: "#fbbf24",
+        danger: "#f87171",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
@@ -47,12 +52,28 @@ const config: Config = {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "fade-in": "fadeIn 200ms ease-out",
         "slide-up": "slideUp 250ms ease-out",
+        "desk-pulse": "deskPulse 1.1s ease-in-out infinite",
+        "desk-scan": "deskScan 1.6s linear infinite",
+        "wire-flow": "wireFlow 1.2s linear infinite",
+        "spin-slow": "spin 6s linear infinite",
       },
       keyframes: {
         fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
         slideUp: {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
+        },
+        deskPulse: {
+          "0%, 100%": { boxShadow: "0 0 0 1px rgba(34,211,238,0.35), 0 0 0px rgba(34,211,238,0)" },
+          "50%": { boxShadow: "0 0 0 1px rgba(34,211,238,0.6), 0 0 18px rgba(34,211,238,0.45)" },
+        },
+        deskScan: {
+          "0%": { backgroundPosition: "0% 0%" },
+          "100%": { backgroundPosition: "0% 200%" },
+        },
+        wireFlow: {
+          "0%": { strokeDashoffset: "24" },
+          "100%": { strokeDashoffset: "0" },
         },
       },
     },

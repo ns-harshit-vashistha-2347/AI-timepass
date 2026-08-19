@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, FileText, LogOut, Sparkles } from "lucide-react";
+import { MessageSquare, FileText, LogOut, Sparkles, Building2 } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/components/auth/auth-provider";
 
 const nav = [
   { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/office", label: "Office", icon: Building2 },
   { href: "/documents", label: "Documents", icon: FileText },
 ];
 
