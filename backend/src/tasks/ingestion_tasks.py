@@ -1,6 +1,6 @@
 from src.graphs.ingestion_graph import ingestion_graph
 from src.celery_app import celery_app
-from src.models.document import DocumentStatus, Document
+from src.models import DocumentStatus, Document  
 from src.core.sync_db import get_sync_db
 from src.core.logging import get_logger
 

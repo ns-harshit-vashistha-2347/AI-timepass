@@ -7,7 +7,7 @@ import redis
 
 @lru_cache
 def get_redis_client() -> redis.Redis:
-    return redis.Redis.from_url(url=settings.REDIS_URL, decode_response = True)
+    return redis.Redis.from_url(url=settings.REDIS_URL, decode_responses=True)
 
 
 def bm25_version_key(collection_name: str) -> str:
