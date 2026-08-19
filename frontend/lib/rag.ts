@@ -42,6 +42,10 @@ export const docsApi = {
 };
 
 export const queryApi = {
-  ask: (query: string, top_k = 5) =>
-    api.post<QueryResponse>("/query", { query, top_k }),
+  ask: (query: string, opts: { top_k?: number; document_ids?: string[] } = {}) => {
+    const { top_k = 5, document_ids } = opts;
+    const body: Record<string, unknown> = { query, top_k };
+    if (document_ids && document_ids.length > 0) body.document_ids = document_ids;
+    return api.post<QueryResponse>("/query", body);
+  },
 };

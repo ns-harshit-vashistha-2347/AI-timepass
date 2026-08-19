@@ -5,18 +5,20 @@
 @layer base {
   html,
   body {
-    background-color: #0d1420;
-    color: #e8ecf5;
+    background-color: #0a0a10;
+    color: #e9e6f2;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   * {
-    border-color: theme("colors.surface.border");
+    border-color: theme("colors.chrome.border");
   }
 
   ::selection {
-    background: rgba(245, 181, 68, 0.35);
+    background: rgba(167, 139, 250, 0.35);
+    color: #ffffff;
   }
 
   ::-webkit-scrollbar {
@@ -24,106 +26,110 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0d1420;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a3853;
-    border-radius: 6px;
+    background: #26263a;
+    border-radius: 4px;
+    border: 2px solid #0a0a10;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a4a6a;
+    background: #3a3a52;
   }
 }
 
 @layer utilities {
-  .glass {
-    background: rgba(18, 18, 28, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+  .font-mono-tight {
+    font-family: theme("fontFamily.mono");
+    letter-spacing: -0.01em;
   }
 
-  .glass-strong {
-    background: rgba(18, 18, 28, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #a084ff 0%, #7c5cff 50%, #5b3fd9 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-
-  .grid-bg {
+  .warp-grid {
     background-image:
-      linear-gradient(rgba(124, 92, 255, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124, 92, 255, 0.06) 1px, transparent 1px);
-    background-size: 32px 32px;
+      linear-gradient(rgba(167, 139, 250, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167, 139, 250, 0.045) 1px, transparent 1px);
+    background-size: 26px 26px;
     background-position: -1px -1px;
   }
 
-  .glow {
-    box-shadow:
-      0 0 0 1px rgba(124, 92, 255, 0.2),
-      0 8px 32px -8px rgba(124, 92, 255, 0.35);
+  .warp-ambient {
+    background:
+      radial-gradient(60% 45% at 100% 0%, rgba(167, 139, 250, 0.14), transparent 60%),
+      radial-gradient(50% 40% at 0% 100%, rgba(127, 216, 160, 0.06), transparent 60%);
   }
 
-  /* markdown output styling inside chat */
-  .prose-chat {
-    color: #e8e8f0;
-    line-height: 1.7;
+  /* soft caret used across terminal prompts */
+  .caret {
+    display: inline-block;
+    width: 7px;
+    height: 1em;
+    vertical-align: -2px;
+    background: currentColor;
+    animation: blink 1s steps(2) infinite;
+    margin-left: 2px;
   }
-  .prose-chat p { margin: 0 0 0.75rem; }
-  .prose-chat p:last-child { margin-bottom: 0; }
-  .prose-chat h1, .prose-chat h2, .prose-chat h3 {
+
+  /* markdown output inside chat blocks */
+  .prose-warp {
+    color: #d6d1e6;
+    line-height: 1.65;
+    font-size: 14px;
+  }
+  .prose-warp p { margin: 0 0 0.65rem; }
+  .prose-warp p:last-child { margin-bottom: 0; }
+  .prose-warp strong { color: #ffffff; font-weight: 600; }
+  .prose-warp em { color: #c4b5fd; font-style: italic; }
+  .prose-warp h1, .prose-warp h2, .prose-warp h3 {
     font-weight: 600;
-    margin: 1.25rem 0 0.5rem;
-    color: #f5f5fa;
+    margin: 1rem 0 0.4rem;
+    color: #f5f2ff;
+    letter-spacing: -0.01em;
   }
-  .prose-chat h1 { font-size: 1.25rem; }
-  .prose-chat h2 { font-size: 1.125rem; }
-  .prose-chat h3 { font-size: 1rem; }
-  .prose-chat ul, .prose-chat ol {
-    padding-left: 1.5rem;
-    margin: 0.5rem 0 0.75rem;
+  .prose-warp h1 { font-size: 1.15rem; }
+  .prose-warp h2 { font-size: 1.05rem; }
+  .prose-warp h3 { font-size: 0.975rem; }
+  .prose-warp ul, .prose-warp ol {
+    padding-left: 1.4rem;
+    margin: 0.4rem 0 0.75rem;
   }
-  .prose-chat ul { list-style: disc; }
-  .prose-chat ol { list-style: decimal; }
-  .prose-chat li { margin: 0.25rem 0; }
-  .prose-chat code {
-    background: rgba(124, 92, 255, 0.12);
-    color: #c8b8ff;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.875em;
+  .prose-warp ul { list-style: disc; }
+  .prose-warp ol { list-style: decimal; }
+  .prose-warp li { margin: 0.2rem 0; }
+  .prose-warp li::marker { color: #a78bfa; }
+  .prose-warp code {
+    background: rgba(167, 139, 250, 0.12);
+    color: #c4b5fd;
+    padding: 0.08rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.86em;
+    font-family: theme("fontFamily.mono");
   }
-  .prose-chat pre {
-    background: #0a0a12;
-    border: 1px solid #22222f;
-    padding: 0.875rem 1rem;
-    border-radius: 8px;
+  .prose-warp pre {
+    background: #050509;
+    border: 1px solid #26263a;
+    padding: 0.75rem 0.9rem;
+    border-radius: 6px;
     overflow-x: auto;
-    margin: 0.75rem 0;
+    margin: 0.7rem 0;
+    font-size: 0.86em;
   }
-  .prose-chat pre code {
+  .prose-warp pre code {
     background: transparent;
-    color: #e8e8f0;
+    color: #d6d1e6;
     padding: 0;
   }
-  .prose-chat a {
-    color: #a084ff;
+  .prose-warp a {
+    color: #a78bfa;
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(167, 139, 250, 0.4);
   }
-  .prose-chat blockquote {
-    border-left: 3px solid #7c5cff;
-    padding-left: 1rem;
-    color: #9a9ab0;
-    margin: 0.75rem 0;
+  .prose-warp a:hover { text-decoration-color: #a78bfa; }
+  .prose-warp blockquote {
+    border-left: 2px solid #a78bfa;
+    padding-left: 0.9rem;
+    color: #a5a2b8;
+    margin: 0.7rem 0;
     font-style: italic;
   }
 }

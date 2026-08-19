@@ -40,22 +40,22 @@ export default function SignupPage() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Start asking your documents anything"
+      subtitle="start a new lumen session"
       footer={
         <>
           Already have an account?{" "}
-          <Link href="/login" className="text-accent-glow hover:underline">
-            Sign in
+          <Link href="/login" className="text-prompt hover:text-prompt-glow underline underline-offset-4 decoration-prompt/40">
+            sign in
           </Link>
         </>
       }
     >
       <GoogleButton label="Sign up with Google" />
 
-      <div className="my-6 flex items-center gap-3 text-xs text-text-subtle">
-        <div className="h-px flex-1 bg-surface-border" />
+      <div className="my-5 flex items-center gap-3 font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-faint">
+        <div className="h-px flex-1 bg-chrome-border" />
         <span>or</span>
-        <div className="h-px flex-1 bg-surface-border" />
+        <div className="h-px flex-1 bg-chrome-border" />
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -96,7 +96,7 @@ export default function SignupPage() {
         </div>
 
         <Button type="submit" loading={loading} className="w-full" size="lg">
-          Create account
+          CREATE ACCOUNT <span className="text-[9px] opacity-70">↵</span>
         </Button>
       </form>
     </AuthShell>

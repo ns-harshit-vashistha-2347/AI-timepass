@@ -8,9 +8,9 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-lg border border-surface-border bg-surface px-3.5 py-2 text-sm text-text",
-        "placeholder:text-text-subtle",
-        "focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/25",
+        "h-10 w-full rounded-md border border-chrome-border bg-bg-raised px-3 py-2 font-mono text-[13px] text-ink",
+        "placeholder:text-ink-faint",
+        "focus:border-prompt/60 focus:outline-none focus:ring-2 focus:ring-prompt/25",
         "disabled:cursor-not-allowed disabled:opacity-60",
         "transition-colors",
         className
@@ -25,7 +25,7 @@ export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElem
   return (
     <label
       className={cn(
-        "mb-1.5 block text-sm font-medium text-text-muted",
+        "mb-1.5 block font-mono text-[10.5px] uppercase tracking-[0.16em] text-ink-dim",
         className
       )}
       {...props}

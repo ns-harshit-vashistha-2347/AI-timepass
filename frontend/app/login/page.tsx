@@ -35,22 +35,22 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Sign in to your knowledge workspace"
+      subtitle="sign in to continue your session"
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-accent-glow hover:underline">
-            Sign up
+          <Link href="/signup" className="text-prompt hover:text-prompt-glow underline underline-offset-4 decoration-prompt/40">
+            sign up
           </Link>
         </>
       }
     >
       <GoogleButton label="Continue with Google" />
 
-      <div className="my-6 flex items-center gap-3 text-xs text-text-subtle">
-        <div className="h-px flex-1 bg-surface-border" />
+      <div className="my-5 flex items-center gap-3 font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-faint">
+        <div className="h-px flex-1 bg-chrome-border" />
         <span>or</span>
-        <div className="h-px flex-1 bg-surface-border" />
+        <div className="h-px flex-1 bg-chrome-border" />
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -80,7 +80,7 @@ export default function LoginPage() {
         </div>
 
         <Button type="submit" loading={loading} className="w-full" size="lg">
-          Sign in
+          SIGN IN <span className="text-[9px] opacity-70">↵</span>
         </Button>
       </form>
     </AuthShell>

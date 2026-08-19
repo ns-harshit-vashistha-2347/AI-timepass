@@ -1,10 +1,11 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { Sparkles, User } from "lucide-react";
-import { Sources } from "./sources";
-import type { SourceChunk } from "@/lib/rag";
 import { cn } from "@/lib/cn";
+import type { SourceChunk } from "@/lib/rag";
+import type { Stage } from "@/lib/use-pipeline";
+import { Sources } from "./sources";
+import { Pipeline } from "./pipeline";
 
 export interface ChatMessage {
   id: string;
@@ -12,63 +13,94 @@ export interface ChatMessage {
   content: string;
   sources?: SourceChunk[];
   loading?: boolean;
+  pipelineStages?: Stage[];
+  scopeCount?: number;
+  at?: Date;
 }
 
 export function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
   return (
-    <div className={cn("flex gap-3 animate-fade-in", isUser && "flex-row-reverse")}>
-      <div
+    <article
+      className={cn(
+        "overflow-hidden rounded-md border animate-fade-in",
+        isUser
+          ? "border-prompt/30 bg-prompt/[0.06]"
+          : "border-chrome-border bg-bg-soft/70"
+      )}
+    >
+      <header
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+          "flex items-center justify-between gap-3 border-b px-3.5 py-2 font-mono text-[10.5px] uppercase tracking-[0.16em]",
           isUser
-            ? "bg-surface border border-surface-border"
-            : "bg-gradient-to-br from-accent to-accent-soft glow"
+            ? "border-prompt/25 text-prompt"
+            : "border-chrome-border text-ink-dim"
         )}
       >
-        {isUser ? (
-          <User className="h-4 w-4 text-text-muted" />
-        ) : (
-          <Sparkles className="h-4 w-4 text-white" />
-        )}
-      </div>
-
-      <div className={cn("min-w-0 flex-1", isUser && "flex flex-col items-end")}>
-        <div
-          className={cn(
-            "max-w-full rounded-2xl px-4 py-3 text-sm",
-            isUser
-              ? "bg-accent text-white rounded-tr-sm"
-              : "bg-surface border border-surface-border text-text rounded-tl-sm"
+        <span className="flex items-center gap-2">
+          <span className={cn(isUser ? "text-prompt" : "text-ok")}>
+            {isUser ? "▸" : "◆"}
+          </span>
+          <span className="font-semibold">
+            {isUser ? "you" : "lumen"}
+          </span>
+          {!isUser && message.loading && (
+            <span className="text-prompt normal-case tracking-normal">
+              · agent working
+            </span>
           )}
-        >
-          {message.loading ? (
-            <TypingDots />
-          ) : isUser ? (
-            <p className="whitespace-pre-wrap">{message.content}</p>
-          ) : (
-            <div className="prose-chat">
+          {!isUser && !message.loading && message.pipelineStages && (
+            <span className="text-ok normal-case tracking-normal">· done</span>
+          )}
+        </span>
+        <span className="text-ink-faint">
+          {message.at
+            ? message.at.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+            : ""}
+          {isUser && message.scopeCount != null && (
+            <span className="ml-3">
+              scope <span className="text-prompt">{message.scopeCount || "all"}</span>
+            </span>
+          )}
+        </span>
+      </header>
+
+      <div className="px-3.5 py-3">
+        {isUser ? (
+          <p className="whitespace-pre-wrap font-mono text-[13.5px] leading-relaxed text-ink">
+            {message.content}
+          </p>
+        ) : message.loading ? (
+          <LoadingBody stages={message.pipelineStages} />
+        ) : (
+          <>
+            {message.pipelineStages && (
+              <div className="mb-2">
+                <Pipeline stages={message.pipelineStages} />
+              </div>
+            )}
+            <div className="prose-warp">
               <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
-          )}
-        </div>
-
-        {!isUser && message.sources && message.sources.length > 0 && (
-          <div className="w-full">
-            <Sources sources={message.sources} />
-          </div>
+            {message.sources && message.sources.length > 0 && (
+              <Sources sources={message.sources} />
+            )}
+          </>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 
-function TypingDots() {
+function LoadingBody({ stages }: { stages?: Stage[] }) {
   return (
-    <div className="flex items-center gap-1 py-1">
-      <span className="h-2 w-2 animate-bounce rounded-full bg-text-muted" style={{ animationDelay: "0ms" }} />
-      <span className="h-2 w-2 animate-bounce rounded-full bg-text-muted" style={{ animationDelay: "150ms" }} />
-      <span className="h-2 w-2 animate-bounce rounded-full bg-text-muted" style={{ animationDelay: "300ms" }} />
+    <div>
+      <div className="flex items-center gap-2 font-mono text-[12px] text-ink-dim">
+        <span className="text-prompt">▸</span>
+        <span>tracing across your library</span>
+        <span className="caret text-prompt" />
+      </div>
+      {stages && <Pipeline stages={stages} />}
     </div>
   );
 }

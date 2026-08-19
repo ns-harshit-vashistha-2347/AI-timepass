@@ -1,8 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
-import { Sidebar } from "@/components/sidebar";
-import { MobileNav } from "@/components/mobile-nav";
+import { AppChrome } from "@/components/app-chrome";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { loading, user } = useAuth();
@@ -10,18 +9,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        <span className="font-mono text-xs tracking-[0.2em] text-ink-dim">
+          BOOT<span className="caret" />
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <div className="flex flex-1 flex-col">
-        <MobileNav />
-        <main className="flex-1 overflow-hidden pb-14 md:pb-0">{children}</main>
-      </div>
+    <div className="flex min-h-screen flex-col">
+      <AppChrome />
+      <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   );
 }

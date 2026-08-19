@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -9,20 +9,24 @@ const inter = Inter({
   display: "swap",
 });
 
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Lumen — AI knowledge for your documents",
-  description: "Upload documents, ask anything.",
+  title: "Lumen — chat with your documents",
+  description: "A terminal-style RAG workspace. Upload documents, choose scope, ask.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-bg text-text antialiased">
-        {/* ambient background */}
+    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+      <body className="min-h-screen bg-bg text-ink antialiased">
         <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute inset-0 grid-bg opacity-40" />
-          <div className="absolute inset-0 bg-aurora opacity-60" />
-          <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-accent/5 to-transparent" />
+          <div className="absolute inset-0 warp-grid opacity-60" />
+          <div className="absolute inset-0 warp-ambient" />
         </div>
 
         {children}
@@ -31,10 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           theme="dark"
           position="bottom-right"
           toastOptions={{
+            className: "!font-mono !text-xs",
             style: {
-              background: "#12121c",
-              border: "1px solid #22222f",
-              color: "#e8e8f0",
+              background: "#101017",
+              border: "1px solid #26263a",
+              color: "#e9e6f2",
+              borderRadius: "6px",
             },
           }}
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, FileText } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { SourceChunk } from "@/lib/rag";
 
@@ -10,44 +10,37 @@ export function Sources({ sources }: { sources: SourceChunk[] }) {
   if (!sources.length) return null;
 
   return (
-    <div className="mt-3 rounded-lg border border-surface-border bg-bg-muted/40">
+    <div className="mt-3">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-text-muted hover:text-text"
+        className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.18em] text-ink-dim hover:text-prompt"
       >
-        <span className="flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5" />
-          {sources.length} source{sources.length === 1 ? "" : "s"}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-3.5 w-3.5 transition-transform",
-            open && "rotate-180"
-          )}
-        />
+        <span className="text-prompt">cite</span>
+        <span className="text-ink-faint">▸</span>
+        <span>{sources.length} source{sources.length === 1 ? "" : "s"}</span>
+        <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="space-y-2 border-t border-surface-border p-3">
+        <div className="mt-2 space-y-1.5">
           {sources.map((s, i) => {
-            const source =
-              (s.metadata?.source as string) || `Source ${i + 1}`;
+            const source = (s.metadata?.source as string) || `source ${i + 1}`;
             const page = s.metadata?.page_number as number | undefined;
             return (
               <div
                 key={i}
-                className="rounded-md border border-surface-border bg-surface/50 p-3 text-xs"
+                className="rounded border border-chrome-border bg-bg/50 p-2.5 font-mono text-[11.5px] leading-relaxed"
               >
-                <div className="mb-1.5 flex items-center justify-between text-text-muted">
-                  <span className="font-medium text-text">
-                    [{i + 1}] {source}
-                    {page ? ` · page ${page}` : ""}
+                <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.14em]">
+                  <span className="text-prompt">
+                    [{String(i + 1).padStart(2, "0")}] {source}
+                    {page ? ` · p${page}` : ""}
                   </span>
-                  <span className="tabular-nums text-text-subtle">
-                    {s.score.toFixed(3)}
+                  <span className="tabular-nums text-ink-faint">
+                    score {s.score.toFixed(3)}
                   </span>
                 </div>
-                <p className="line-clamp-4 whitespace-pre-wrap text-text-muted">
+                <p className="line-clamp-4 whitespace-pre-wrap text-ink-muted">
                   {s.content}
                 </p>
               </div>

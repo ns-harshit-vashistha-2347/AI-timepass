@@ -17,7 +17,9 @@ export default function RootPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+      <span className="font-mono text-xs tracking-[0.2em] text-ink-dim">
+        BOOT<span className="caret" />
+      </span>
     </div>
   );
 }
