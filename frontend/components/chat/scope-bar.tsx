@@ -36,8 +36,10 @@ export function ScopeBar() {
   return (
     <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
       <span className="text-ink-dim">
-        <span className="text-prompt">scope</span>{" "}
-        <span className="text-ink-faint">▸</span>
+        <span className="text-mk-green">lumen@rag</span>
+        <span className="text-ink-faint">:</span>
+        <span className="text-mk-blue">~/scope</span>
+        <span className="text-ink-faint">$</span>
       </span>
 
       {loading ? (
@@ -53,7 +55,7 @@ export function ScopeBar() {
           <button
             key={d.id}
             onClick={() => store.remove(d.id)}
-            className="group flex items-center gap-1 rounded border border-prompt/40 bg-prompt/10 px-2 py-[3px] text-prompt hover:bg-prompt/15"
+            className="group flex items-center gap-1 rounded border border-mk-green/40 bg-mk-green/[0.08] px-2 py-[3px] text-mk-green hover:bg-mk-green/[0.15]"
             title="Remove from scope"
           >
             <span className="max-w-[180px] truncate">{d.filename}</span>
@@ -64,7 +66,7 @@ export function ScopeBar() {
 
       <Link
         href="/documents"
-        className="ml-1 inline-flex items-center gap-1 rounded border border-dashed border-chrome-border px-2 py-[3px] text-ink-dim hover:border-prompt/40 hover:text-prompt"
+        className="ml-1 inline-flex items-center gap-1 rounded border border-dashed border-chrome-border px-2 py-[3px] text-ink-dim hover:border-mk-pink/50 hover:text-mk-pink"
       >
         <Plus className="h-3 w-3" />
         {inScope.length === 0 ? "select docs" : "edit"}

@@ -35,14 +35,14 @@ def query_rewrite_node(state: dict) -> dict:
         return {"queries": [raw_query], "primary_query": raw_query}
 
     n_variants = settings.QUERY_EXPANSION_COUNT
-    llm = get_llm(temperature=0.3)
+    llm = get_llm(task="rewrite", temperature=0.3)
 
     try:
         response = llm.invoke([
             SystemMessage(content=REWRITE_SYSTEM_PROMPT.format(n_variants=n_variants)),
             HumanMessage(content=raw_query)
         ])
-        parsed = json.load(response.content.strip())
+        parsed = json.loads(response.content.strip())
         primary = parsed.get("primary", raw_query).strip() or raw_query
         variants = [v.strip() for v in parsed.get("variants", []) if v.strip()]
 
@@ -53,7 +53,7 @@ def query_rewrite_node(state: dict) -> dict:
             key = q.lower()
             if key not in seen:
                 seen.add(key)
-                queries.add(q)
+                queries.append(q)
 
         logger.info(f"[query_rewrite_node] rewrote into {len(queries)} variants: {queries}")
         return {"queries": queries, "primary_query": primary}

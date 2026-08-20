@@ -20,14 +20,14 @@ def rerank(query: str, chunks: list[RetrievedChunk], top_n: int) -> list[Retriev
         return []
 
     model = get_reranker()
-    pairs = [(query, chunk) for chunk in chunks]
+    pairs = [(query, chunk.content) for chunk in chunks] 
     scores = model.predict(pairs)
 
     reranked = sorted(
         zip(chunks, scores),
-        key = lambda pair: pair[i],
+        key=lambda pair: pair[1],
         reverse=True
-    )[top_n]
+    )[:top_n]
 
     return [
         RetrievedChunk(
@@ -44,9 +44,9 @@ def rerank_node(state: dict) -> dict:
         top_k = state.get("top_k", settings.RETRIEVAL_TOP_K)
         return {"reranked_results": state.get("fused_results", [])[:top_k]}
 
-    query = state["query"]
+    query = state.get("primary_query") or state["query"]
     fused_results = state.get("fused_results", [])
-    top_n = state.get("top_k", settings.RETRIEVAL_TOP_N)
+    top_n = state.get("top_k", settings.RERANK_TOP_N)
 
     logger.info(
         f"[rerank_node] reranking {len(fused_results)} candidates -> top_n={top_n}"

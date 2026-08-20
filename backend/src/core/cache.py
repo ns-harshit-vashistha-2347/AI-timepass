@@ -2,6 +2,8 @@ from functools import lru_cache
 
 from src.core.config import settings
 
+import hashlib
+import json
 import redis
 
 
@@ -21,3 +23,18 @@ def bump_bm25_version(collection_name: str) -> None:
 def get_bm25_version(collection_name: str) -> str:
     value = get_redis_client().get(bm25_version_key(collection_name))
     return value or "0"
+
+
+def query_cache_key(query: str, top_k: int, user_id: str) -> str:
+    normalized = query.strip().lower()
+    digest = hashlib.sha256(f"{user_id}:{top_k}:{normalized}".encode()).hexdigest()
+    return f"query_cache:{digest}"
+
+
+def get_cached_query(query: str, top_k: int, user_id: str) -> dict | None:
+    raw = get_redis_client().get(query_cache_key(query, top_k, user_id))
+    return json.loads(raw) if raw else None
+
+
+def set_cached_query(query: str, top_k: int, user_id: str, payload: dict, ttl: int = 3600) -> None:
+    get_redis_client().set(query_cache_key(query, top_k, user_id), json.dumps(payload), ex=ttl)

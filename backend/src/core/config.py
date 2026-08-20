@@ -74,8 +74,8 @@ class Settings(BaseSettings):
 
 
     RERANK_ENABLED: bool = True
-    RERANK_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-    RERANK_CANDIDATE_POOL: int = 20
+    RERANK_MODEL: str = "BAAI/bge-reranker-v2-m3"
+    RERANK_CANDIDATE_POOL: int = 12
     RERANK_TOP_N: int = 5
 
 
@@ -84,9 +84,10 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE_MB: int = 50
 
     QUERY_REWRITE_ENABLED: bool = True
-    QUERY_EXPANSION_COUNT: int = 2
+    QUERY_EXPANSION_COUNT: int = 1
 
     COMPRESSION_ENABLED: bool = True
+    COMPRESSION_MIN_CHARS: int = 4000
 
     SELF_CORRECTION_ENABLED: bool = True
     SELF_CORRECTION_EXPANDED_K: int = 10
@@ -104,6 +105,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://localhost:8080/auth/google/callback"
     FRONTEND_URL: str = "http://localhost:3000"
+
+    MMR_ENABLED: bool = True
 
     @property
     def allowed_extensions(self) -> frozenset[str]:

@@ -45,7 +45,7 @@ def verify_node(state: dict) -> dict:
         return {"verdict": "grounded", "correction_attempts": state.get("correction_attempts", 0)}
 
     query = state.get("primary_query") or state["query"]
-    llm = get_llm(temperature=0.0)
+    llm = get_llm(task="verify", temperature=0.0)
 
     try:
         response = llm.invoke([

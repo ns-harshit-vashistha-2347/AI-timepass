@@ -21,7 +21,7 @@ Rules:
 
 
 def _compress_one(query: str, chunk: RetrievedChunk) -> RetrievedChunk:
-    llm = get_llm(temperature=0.0)
+    llm = get_llm(task="compress", temperature=0.0)
 
     try:
         response = llm.invoke([
@@ -47,14 +47,19 @@ def _compress_one(query: str, chunk: RetrievedChunk) -> RetrievedChunk:
 
 def compressed_node(state: dict) -> dict:
     if not settings.COMPRESSION_ENABLED:
-        return {"compressed_results": state.get("reranked_results", [])} 
-
+        return {"compressed_results": state.get("reranked_results", [])}
 
     query = state.get("primary_query") or state["query"]
     chunks = state.get("reranked_results", [])
 
     if not chunks:
         return {"compressed_results": []}
+
+    total_chars = sum(len(c.content) for c in chunks)
+    if total_chars < settings.COMPRESSION_MIN_CHARS:
+        logger.info(f"[compression_node] skipped, total_chars={total_chars} below threshold")
+        return {"compressed_results": chunks}
+
 
     with ThreadPoolExecutor(max_workers=min(len(chunks), 5)) as executor:
         results = list(executor.map(lambda x: _compress_one(query, x), chunks))
@@ -65,5 +70,6 @@ def compressed_node(state: dict) -> dict:
     if not compressed:
         logger.warning("[compression_node] compression dropped all chunks; falling back to reranked")
         return {"compressed_results": chunks}
+
 
     return {"compressed_results": compressed}

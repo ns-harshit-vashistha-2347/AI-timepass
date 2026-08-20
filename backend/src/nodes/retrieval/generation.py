@@ -14,6 +14,18 @@ Rules:
 - Be concise and direct.
 """
 
+def _expand_with_neighbors(chunks, collection, window: int = 1):
+    expanded = []
+    for chunk in chunks:
+        ids_to_fetch = [chunk.id]
+        cid = chunk.metadata.get("prev_chunk_id")
+        for _ in range(window):
+            if cid:
+                ids_to_fetch.insert(0, cid)
+        
+        expanded.append(chunk) 
+    return expanded
+
 
 def _build_context(chunks) -> str:
     parts = []
@@ -34,7 +46,7 @@ def _pick_chunks(state: dict):
     )
 
 
-def generation_node(state: dict) -> dict:
+async def generation_node(state: dict) -> dict:
     query = state.get("primary_query") or state["query"]
     chunks = _pick_chunks(state)
 
@@ -54,6 +66,6 @@ def generation_node(state: dict) -> dict:
     ]
 
     logger.info(f"[generation_node] generating answer for query='{query[:60]}' with {len(chunks)} chunks")
-    response = llm.invoke(messages)
+    response = await llm.ainvoke(messages)
 
     return {"answer": response.content}

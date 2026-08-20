@@ -16,14 +16,17 @@ class DenseRetriever(BaseRetriever):
         self.embedder = get_embedder()
 
 
-    def retrieve(self, query: str, top_k: int, user_id: str | None = None) -> list[RetrievedChunk]:
+    def retrieve(self, query: str, top_k: int, user_id: str | None = None, document_id: str | None = None) -> list[RetrievedChunk]:
         query_embedding = self.embedder.embed_query(query)
-        where = {"user_id": user_id} if user_id else None
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            where=where,
-        )
+        conditions = []
+        if user_id:
+            conditions.append({"user_id": user_id})
+        if document_id:
+            conditions.append({"document_id": document_id})
+
+        where = {"$and": conditions} if len(conditions) > 1 else (conditions[0] if conditions else None)
+        results = self.collection.query(query_embeddings=[query_embedding], n_results=top_k, where=where)
+
 
         chunks = []
         ids = results.get("ids", [[]])[0]
@@ -42,13 +45,18 @@ def dense_retrieval_node(state: dict) -> dict:
     queries = state.get("queries") or [state["query"]]
     retrieval_k = state.get("retrieval_k", state.get("top_k", 5))
     user_id = state.get("user_id")
+    document_id = state.get("document_id")
+
     logger.info(
         f"[dense_retrieval_node] searching {len(queries)} query variants, retrieval_k={retrieval_k} user_id={user_id}"
     )
 
     retriever = DenseRetriever(settings.CHROMA_COLLECTION_DOCUMENTS)
 
-    per_query_results = [retriever.retrieve(q, retrieval_k, user_id=user_id) for q in queries]
+    per_query_results = [
+        retriever.retrieve(q, retrieval_k, user_id=user_id, document_id=document_id)
+        for q in queries
+    ]
     fused = reciprocal_rank_fusion(per_query_results)[:retrieval_k]
 
     return {"dense_results": fused}

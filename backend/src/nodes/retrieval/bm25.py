@@ -1,6 +1,7 @@
 import time
 
 from rank_bm25 import BM25Okapi
+import re
 
 from src.core.cache import get_bm25_version
 from src.core.logging import get_logger
@@ -12,6 +13,11 @@ logger = get_logger(__name__)
 
 _BM25_CACHE: dict[str, tuple] = {}
 
+_TOKEN_RE = re.compile(r"[a-z0-9]+")
+_STOPWORDS = {"the", "a", "an", "is", "are", "of", "to", "in", "and", "or", "for", "on", "at"}
+
+def _tokenize(text: str) -> list[str]:
+    return [t for t in _TOKEN_RE.findall(text.lower()) if t not in _STOPWORDS]
 
 class BM25Retriever(BaseRetriever):
     def __init__(self, collection_name: str):
@@ -40,7 +46,7 @@ class BM25Retriever(BaseRetriever):
 
         logger.info(f"[BM25Retriever] rebuilding index for '{name}' (version={current_version})")
         ids, documents, metadatas = self._load_corpus()
-        bm25 = BM25Okapi([doc.split(" ") for doc in documents]) if documents else None
+        bm25 = BM25Okapi([_tokenize(doc) for doc in documents]) if documents else None
         _BM25_CACHE[name] = (current_version, time.time(), bm25, ids, documents, metadatas)
         return bm25, ids, documents, metadatas
 
@@ -50,7 +56,7 @@ class BM25Retriever(BaseRetriever):
         if not documents or bm25 is None:
             return []
 
-        tokenized_query = query.split(" ")
+        tokenized_query = _tokenize(query)
         scores = bm25.get_scores(tokenized_query)
 
         combined = list(zip(ids, documents, metadatas, scores))

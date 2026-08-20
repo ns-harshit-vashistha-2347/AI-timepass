@@ -5,8 +5,8 @@
 @layer base {
   html,
   body {
-    background-color: #0a0a10;
-    color: #e9e6f2;
+    background-color: #272822;
+    color: #f8f8f2;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -17,7 +17,7 @@
   }
 
   ::selection {
-    background: rgba(167, 139, 250, 0.35);
+    background: rgba(249, 38, 114, 0.35);
     color: #ffffff;
   }
 
@@ -29,12 +29,12 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #26263a;
+    background: #49483e;
     border-radius: 4px;
-    border: 2px solid #0a0a10;
+    border: 2px solid #272822;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a52;
+    background: #75715e;
   }
 }
 
@@ -46,22 +46,42 @@
 
   .warp-grid {
     background-image:
-      linear-gradient(rgba(167, 139, 250, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(167, 139, 250, 0.045) 1px, transparent 1px);
+      linear-gradient(rgba(249, 38, 114, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(249, 38, 114, 0.045) 1px, transparent 1px);
     background-size: 26px 26px;
     background-position: -1px -1px;
   }
 
   .warp-ambient {
     background:
-      radial-gradient(60% 45% at 100% 0%, rgba(167, 139, 250, 0.14), transparent 60%),
-      radial-gradient(50% 40% at 0% 100%, rgba(127, 216, 160, 0.06), transparent 60%);
+      radial-gradient(60% 45% at 100% 0%, rgba(249, 38, 114, 0.12), transparent 60%),
+      radial-gradient(50% 40% at 0% 100%, rgba(166, 226, 46, 0.06), transparent 60%);
+  }
+
+  .crt-flicker {
+    animation: flicker 4s linear infinite;
+  }
+
+  .crt-scan::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.10) 0px,
+      rgba(0, 0, 0, 0.10) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
   }
 
   /* soft caret used across terminal prompts */
   .caret {
     display: inline-block;
-    width: 7px;
+    width: 8px;
     height: 1em;
     vertical-align: -2px;
     background: currentColor;
@@ -69,67 +89,93 @@
     margin-left: 2px;
   }
 
+  /* monokai token colors for arbitrary use */
+  .tok-kw { color: #f92672; }
+  .tok-fn { color: #a6e22e; }
+  .tok-str { color: #e6db74; }
+  .tok-num { color: #ae81ff; }
+  .tok-type { color: #66d9ef; }
+  .tok-const { color: #fd971f; }
+  .tok-comment { color: #75715e; font-style: italic; }
+
   /* markdown output inside chat blocks */
   .prose-warp {
-    color: #d6d1e6;
+    color: #f8f8f2;
     line-height: 1.65;
     font-size: 14px;
   }
   .prose-warp p { margin: 0 0 0.65rem; }
   .prose-warp p:last-child { margin-bottom: 0; }
   .prose-warp strong { color: #ffffff; font-weight: 600; }
-  .prose-warp em { color: #c4b5fd; font-style: italic; }
+  .prose-warp em { color: #e6db74; font-style: italic; }
   .prose-warp h1, .prose-warp h2, .prose-warp h3 {
     font-weight: 600;
     margin: 1rem 0 0.4rem;
-    color: #f5f2ff;
+    color: #f92672;
     letter-spacing: -0.01em;
   }
   .prose-warp h1 { font-size: 1.15rem; }
   .prose-warp h2 { font-size: 1.05rem; }
-  .prose-warp h3 { font-size: 0.975rem; }
+  .prose-warp h3 { font-size: 0.975rem; color: #a6e22e; }
   .prose-warp ul, .prose-warp ol {
     padding-left: 1.4rem;
     margin: 0.4rem 0 0.75rem;
   }
-  .prose-warp ul { list-style: disc; }
+  .prose-warp ul { list-style: none; }
   .prose-warp ol { list-style: decimal; }
-  .prose-warp li { margin: 0.2rem 0; }
-  .prose-warp li::marker { color: #a78bfa; }
+  .prose-warp ul li { position: relative; margin: 0.2rem 0; }
+  .prose-warp ul li::before {
+    content: "▸";
+    position: absolute;
+    left: -1rem;
+    color: #f92672;
+  }
+  .prose-warp ol li { margin: 0.2rem 0; }
+  .prose-warp li::marker { color: #ae81ff; }
   .prose-warp code {
-    background: rgba(167, 139, 250, 0.12);
-    color: #c4b5fd;
+    background: rgba(249, 38, 114, 0.14);
+    color: #f92672;
     padding: 0.08rem 0.35rem;
     border-radius: 3px;
     font-size: 0.86em;
     font-family: theme("fontFamily.mono");
   }
   .prose-warp pre {
-    background: #050509;
-    border: 1px solid #26263a;
+    background: #1e1f1c;
+    border: 1px solid #3e3d32;
     padding: 0.75rem 0.9rem;
-    border-radius: 6px;
+    border-radius: 4px;
     overflow-x: auto;
     margin: 0.7rem 0;
     font-size: 0.86em;
   }
   .prose-warp pre code {
     background: transparent;
-    color: #d6d1e6;
+    color: #f8f8f2;
     padding: 0;
   }
   .prose-warp a {
-    color: #a78bfa;
+    color: #66d9ef;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(167, 139, 250, 0.4);
+    text-decoration-color: rgba(102, 217, 239, 0.4);
   }
-  .prose-warp a:hover { text-decoration-color: #a78bfa; }
+  .prose-warp a:hover { text-decoration-color: #66d9ef; }
   .prose-warp blockquote {
-    border-left: 2px solid #a78bfa;
+    border-left: 2px solid #a6e22e;
     padding-left: 0.9rem;
-    color: #a5a2b8;
+    color: #75715e;
     margin: 0.7rem 0;
     font-style: italic;
   }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 1; }
+  48% { opacity: 0.94; }
+  49% { opacity: 1; }
+  72% { opacity: 1; }
+  73% { opacity: 0.96; }
+  74% { opacity: 1; }
 }

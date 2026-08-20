@@ -9,6 +9,8 @@ from src.routes.auth import auth_router
 from src.routes.documents import document_router
 from src.routes.query import query_router
 from src.routes.status import status_router
+from src.nodes.ingestion.embed import get_embedder
+from src.nodes.retrieval.rerank import get_reranker
 
 setup_logging()
 logger = get_logger(__name__)
@@ -17,6 +19,9 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.APP_NAME} [{settings.ENV}]")
+    get_embedder()         
+    if settings.RERANK_ENABLED:
+        get_reranker()       
     yield
     logger.info("Shutting down")
 

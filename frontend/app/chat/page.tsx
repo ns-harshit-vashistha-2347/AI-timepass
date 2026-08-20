@@ -173,7 +173,7 @@ function ChatInner() {
             <button
               type="submit"
               disabled={!input.trim() || sending}
-              className="mt-0.5 shrink-0 rounded bg-gradient-to-b from-prompt to-prompt-soft px-2.5 py-1.5 font-mono text-[10.5px] font-semibold tracking-[0.14em] text-[#0b0616] shadow-glow transition hover:brightness-110 disabled:cursor-not-allowed disabled:from-prompt/30 disabled:to-prompt-soft/30 disabled:text-[#0b0616]/40 disabled:shadow-none"
+              className="mt-0.5 shrink-0 rounded bg-gradient-to-b from-prompt to-prompt-soft px-2.5 py-1.5 font-mono text-[10.5px] font-semibold tracking-[0.14em] text-[#1a0410] shadow-glow transition hover:brightness-110 disabled:cursor-not-allowed disabled:from-prompt/30 disabled:to-prompt-soft/30 disabled:text-[#1a0410]/40 disabled:shadow-none"
               aria-label="Send"
             >
               {sending ? "…" : "SEND ↵"}

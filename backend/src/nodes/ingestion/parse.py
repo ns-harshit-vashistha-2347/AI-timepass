@@ -1,6 +1,8 @@
 import os
 
 from pypdf import PdfReader
+import pdfplumber
+from collections import Counter
 from docx import Document as DocxDocument
 
 from src.interfaces.base_parser import BaseParser, ParsedUnit
@@ -10,16 +12,27 @@ from src.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-
 class PdfParser(BaseParser):
     def supports(self, file_path: str) -> bool:
         return file_path.lower().endswith('.pdf')
 
     def parse(self, file_path: str) -> list[ParsedUnit]:
-        reader = PdfReader(file_path)
+        with pdfplumber.open(file_path) as pdf:
+            doc_meta = pdf.metadata or {}
+            pages_text = []
+            for page in pdf.pages:
+                text = page.extract_text() or ""
+                tables = page.extract_tables()
+                if tables:
+                    for t in tables:
+                        rows = ["\t".join(str(cell or "") for cell in row) for row in t]
+                        text += "\n\n[TABLE]\n" + "\n".join(rows)
+                pages_text.append(text)
+
+        pages_text = self._strip_repeated_headers_footers(pages_text)
+
         units = []
-        for page_num, page in enumerate(reader.pages):
-            text = page.extract_text() or ""
+        for page_num, text in enumerate(pages_text):
             if text.strip():
                 units.append(
                     ParsedUnit(
@@ -27,11 +40,28 @@ class PdfParser(BaseParser):
                         metadata={
                             "page_number": page_num + 1,
                             "source": os.path.basename(file_path),
+                            "doc_title": doc_meta.get("Title") or os.path.basename(file_path),
+                            "doc_author": doc_meta.get("Author"),
                         },
                     )
                 )
-
         return units
+
+    def _strip_repeated_headers_footers(self, pages: list[str], min_pages: int = 3) -> list[str]:
+        """Lines repeated across most pages are running headers/footers — drop them."""
+        if len(pages) < min_pages:
+            return pages
+        first_lines = Counter(p.split("\n", 1)[0].strip() for p in pages if p.strip())
+        last_lines = Counter(p.rstrip().rsplit("\n", 1)[-1].strip() for p in pages if p.strip())
+        threshold = len(pages) * 0.6
+        noisy = {ln for ln, c in first_lines.items() if c >= threshold and ln} | \
+                {ln for ln, c in last_lines.items() if c >= threshold and ln}
+
+        cleaned = []
+        for p in pages:
+            lines = [ln for ln in p.split("\n") if ln.strip() not in noisy]
+            cleaned.append("\n".join(lines))
+        return cleaned
 
 
 class DocxParser(BaseParser):

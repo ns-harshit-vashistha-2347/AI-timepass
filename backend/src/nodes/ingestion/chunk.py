@@ -9,9 +9,26 @@ from langchain_text_splitters import (
 from src.core.logging import get_logger
 from src.interfaces.base_chunker import BaseChunker, Chunk
 from src.interfaces.base_parser import ParsedUnit
+from src.core.llm import get_llm
+from langchain_core.messages import HumanMessage, SystemMessage
 
 
+CONTEXT_SYSTEM_PROMPT = """Given a document excerpt, write ONE short sentence (<20 words) describing
+what this excerpt is about, to help a search system understand its place in the document.
+Do not summarize content, just describe its topic/role. Respond with only the sentence."""
 
+def _generate_semantic_header(chunk_text: str) -> str:
+    llm = get_llm(task="compress", temperature=0.0)  # small/fast model
+    try:
+        response = llm.invoke([
+            SystemMessage(content=CONTEXT_SYSTEM_PROMPT),
+            HumanMessage(content=chunk_text[:1500]),
+        ])
+        return response.content.strip()
+    except Exception:
+        return ""
+
+    
 logger = get_logger(__name__)
 
 MARKDOWN_HEADERS_TO_SPLIT_ON = [
@@ -51,23 +68,32 @@ class RecursiveTokenChunker(BaseChunker):
         )
 
     def _build_context_header(self, metadata: dict) -> str:
-        """Builds a short 'breadcrumb' string (source + section path) to prepend
-        to a chunk before embedding, so an isolated chunk doesn't lose the
-        surrounding context that made it meaningful."""
         parts: list[str] = []
 
+        title = metadata.get("doc_title")
         source = metadata.get("source")
         page = metadata.get("page_number")
+        if title:
+            parts.append(f"Document: {title}")
         if source:
-            parts.append(f"Source: {source}" + (f" (page {page})" if page else ""))
+            parts.append(f"Source file: {source}" + (f" (page {page})" if page else ""))
 
-        section_path = " > ".join(
-            metadata[key] for key in ("h1", "h2", "h3") if metadata.get(key)
-        )
+        section_path = " > ".join(metadata[key] for key in ("h1", "h2", "h3") if metadata.get(key))
         if section_path:
             parts.append(f"Section: {section_path}")
 
         return "\n".join(parts)
+
+    def _is_low_quality(text: str) -> bool:
+        stripped = text.strip()
+        if len(stripped) < 40:
+            return True
+        if stripped.replace(" ", "").isdigit():         
+            return True
+        alpha_chars = sum(c.isalpha() for c in stripped)
+        if alpha_chars < len(stripped) * 0.3:             
+            return True
+        return False
 
     def chunk(
         self,
@@ -109,6 +135,8 @@ class RecursiveTokenChunker(BaseChunker):
                 section_chunks = self.token_splitter.split_text(text)
 
                 for chunk_text in section_chunks:
+                    if self._is_low_quality(chunk_text):
+                        continue
 
                     combined_metadata = {
                         **unit.metadata,
@@ -116,6 +144,8 @@ class RecursiveTokenChunker(BaseChunker):
                         "document_id": document_id,
                         "chunk_index": chunk_index,
                     }
+                    combined_metadata["prev_chunk_id"] = chunks[-1].id if chunks and chunks[-1].metadata.get("document_id") == document_id else None
+
                     if user_id is not None:
                         combined_metadata["user_id"] = user_id
 
