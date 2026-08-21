@@ -1,5 +1,4 @@
 import urllib.parse
-import uuid
 from datetime import datetime, timezone
 
 import httpx
@@ -12,7 +11,6 @@ from src.core.config import settings
 from src.core.db import get_db
 from src.core.deps import get_current_user
 from src.core.jwt import (
-    JWTError,
     create_access_token,
     generate_refresh_token,
     hash_refresh_token,

@@ -84,7 +84,7 @@ class RecursiveTokenChunker(BaseChunker):
 
         return "\n".join(parts)
 
-    def _is_low_quality(text: str) -> bool:
+    def _is_low_quality(self, text: str) -> bool:
         stripped = text.strip()
         if len(stripped) < 40:
             return True

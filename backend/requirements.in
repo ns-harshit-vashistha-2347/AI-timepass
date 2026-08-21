@@ -36,3 +36,5 @@ python-jose[cryptography]
 httpx
 email-validator
 argon2-cffi
+
+pdfplumber

@@ -50,7 +50,13 @@ class BM25Retriever(BaseRetriever):
         _BM25_CACHE[name] = (current_version, time.time(), bm25, ids, documents, metadatas)
         return bm25, ids, documents, metadatas
 
-    def retrieve(self, query: str, top_k: int = 5, user_id: str | None = None) -> list[RetrievedChunk]:
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 5,
+        user_id: str | None = None,
+        document_id: str | None = None,
+    ) -> list[RetrievedChunk]:
         bm25, ids, documents, metadatas = self._get_index()
 
         if not documents or bm25 is None:
@@ -62,6 +68,8 @@ class BM25Retriever(BaseRetriever):
         combined = list(zip(ids, documents, metadatas, scores))
         if user_id is not None:
             combined = [row for row in combined if (row[2] or {}).get("user_id") == user_id]
+        if document_id is not None:
+            combined = [row for row in combined if (row[2] or {}).get("document_id") == document_id]
 
         ranked = sorted(combined, key=lambda x: x[3], reverse=True)[:top_k]
 
@@ -82,13 +90,17 @@ def bm25_retrieval_node(state: dict) -> dict:
     queries = state.get("queries") or [state["query"]]
     retrieval_k = state.get("retrieval_k", state.get("top_k", 5))
     user_id = state.get("user_id")
+    document_id = state.get("document_id")
     logger.info(
         f"[bm25_retrieval_node] searching {len(queries)} query variants, retrieval_k={retrieval_k} user_id={user_id}"
     )
 
     retriever = BM25Retriever(settings.CHROMA_COLLECTION_DOCUMENTS)
 
-    per_query_results = [retriever.retrieve(q, retrieval_k, user_id=user_id) for q in queries]
+    per_query_results = [
+        retriever.retrieve(q, retrieval_k, user_id=user_id, document_id=document_id)
+        for q in queries
+    ]
     fused = reciprocal_rank_fusion(per_query_results)[:retrieval_k]
 
     return {"bm25_results": fused}

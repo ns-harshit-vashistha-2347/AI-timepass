@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from src.core.deps import get_current_user
 from src.core.logging import get_logger
-from src.graphs.query_graph import query_graph
+from src.graphs.query_graph import query_graph, retrieval_graph
 from src.models.user import User
 from src.schemas.document import QueryRequest, QueryResponse, SourceChunk
 from src.core.cache import get_cached_query, set_cached_query
@@ -55,12 +55,17 @@ async def run_query(payload: QueryRequest, current_user: User = Depends(get_curr
 
 @query_router.post("/stream")
 async def run_query_stream(payload: QueryRequest, current_user: User = Depends(get_current_user)):
-    partial = await query_graph.ainvoke(
-        {"query": payload.query, "top_k": payload.top_k, "user_id": str(current_user.id)}
-    )
+    partial = await retrieval_graph.ainvoke({
+        "query": payload.query,
+        "top_k": payload.top_k,
+        "user_id": str(current_user.id),
+        "document_id": str(payload.document_id) if payload.document_id else None,
+    })
     chunks = _pick_chunks(partial)
     context = _build_context(chunks)
-    llm = get_llm(task="generate_complex", temperature=0.2)
+    complexity = partial.get("complexity", "complex")
+    task_name = "generate_simple" if complexity == "simple" else "generate_complex"
+    llm = get_llm(task=task_name, temperature=0.2)
 
     async def token_stream():
         async for chunk in llm.astream([

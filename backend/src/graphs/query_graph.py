@@ -79,7 +79,6 @@ def build_query_graph():
 
     graph.add_edge(START, "prepare")
     graph.add_edge("prepare", "rewrite")
-    graph.add_edge("prepare", "rewrite")
     graph.add_edge("rewrite", "dense")
     graph.add_edge("rewrite", "bm25")
     graph.add_edge("dense", "fusion")
@@ -121,3 +120,55 @@ def build_query_graph():
 
 
 query_graph = build_query_graph()
+
+
+def _ready_for_generation(state: dict) -> dict:
+    """No-op join point: both the 'simple' and 'complex' branches land here
+    with everything generation_node needs already in state, without ever
+    invoking the LLM. Lets callers (e.g. the /query/stream route) run
+    retrieval exactly once and do their own single generation/stream call
+    afterwards, instead of paying for generation twice."""
+    return {}
+
+
+def build_retrieval_graph():
+    """Same retrieval pipeline as build_query_graph, but stops right before
+    generation instead of calling the LLM to produce an answer."""
+    graph = StateGraph(QueryState)
+
+    graph.add_node("prepare", prepare_node)
+    graph.add_node("classify", classify_node)
+    graph.add_node("mmr", mmr_node)
+    graph.add_node("rewrite", query_rewrite_node)
+    graph.add_node("dense", dense_retrieval_node)
+    graph.add_node("bm25", bm25_retrieval_node)
+    graph.add_node("fusion", fusion_node)
+    graph.add_node("rerank", rerank_node)
+    graph.add_node("compression", compressed_node)
+    graph.add_node("ready", _ready_for_generation)
+
+    graph.add_edge(START, "prepare")
+    graph.add_edge("prepare", "rewrite")
+    graph.add_edge("rewrite", "dense")
+    graph.add_edge("rewrite", "bm25")
+    graph.add_edge("dense", "fusion")
+    graph.add_edge("bm25", "fusion")
+    graph.add_edge("fusion", "mmr")
+    graph.add_edge("mmr", "rerank")
+    graph.add_edge("rerank", "classify")
+
+    graph.add_conditional_edges(
+        "classify",
+        lambda state: state.get("complexity", "complex"),
+        {
+            "simple": "ready",
+            "complex": "compression",
+        },
+    )
+    graph.add_edge("compression", "ready")
+    graph.add_edge("ready", END)
+
+    return graph.compile()
+
+
+retrieval_graph = build_retrieval_graph()

@@ -59,8 +59,9 @@ def fusion_node(state: dict) -> dict:
     dense_results = state.get("dense_results", [])
     bm25_results = state.get("bm25_results", [])
     pool_size = state.get("retrieval_k", state.get("top_k", 5))
+    query = state.get("primary_query") or state.get("query", "")
 
-    fused = reciprocal_rank_fusion([dense_results, bm25_results])[:pool_size]
+    fused = weighted_rrf(dense_results, bm25_results, query)[:pool_size]
 
     logger.info(
         f"[fusion_node] dense={len(dense_results)} bm25={len(bm25_results)} -> fused={len(fused)}"
